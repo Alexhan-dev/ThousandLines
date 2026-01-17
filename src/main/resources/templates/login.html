@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 千际线</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+<div class="auth-container">
+    <div class="auth-header">
+        <a href="/comics" class="logo">
+            <i class="fas fa-book"></i>
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+    </div>
+
+    <div class="auth-card">
+        <h2>用户登录</h2>
+
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/auth/login}" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i> 用户名
+                </label>
+                <input type="text" id="username" name="username" required
+                       placeholder="请输入用户名">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> 密码
+                </label>
+                <input type="password" id="password" name="password" required
+                       placeholder="请输入密码">
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> 登录
+            </button>
+
+            <div class="auth-links">
+                <a href="/comics">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+            </div>
+        </form>
+
+        <div class="auth-info">
+            <h4>关于账户类型:</h4>
+            <ul>
+                <li><strong>普通用户:</strong> 仅可浏览和阅读漫画</li>
+                <li><strong>创作者(Creator):</strong> 可上传和删除自己的漫画</li>
+                <li><strong>管理员(Admin):</strong> 拥有所有权限</li>
+            </ul>
+            <p>默认管理员账户: admin / admin123</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

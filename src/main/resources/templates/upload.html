@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传漫画 - 千际线</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        function previewCover() {
+            const file = document.getElementById('coverImage').files[0];
+            const preview = document.getElementById('coverPreview');
+            const placeholder = document.getElementById('coverPlaceholder');
+
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB限制
+                    alert('封面图片大小不能超过5MB');
+                    document.getElementById('coverImage').value = '';
+                    return;
+                }
+
+                if (!file.type.startsWith('image/jpeg')) {
+                    alert('封面图片必须是 JPG 格式');
+                    document.getElementById('coverImage').value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updatePageCount() {
+            const fileInput = document.getElementById('pages');
+            const files = fileInput.files;
+            const fileCount = document.getElementById('pageCount');
+            const fileList = document.getElementById('fileList');
+
+            fileCount.textContent = files.length;
+
+            // 显示文件列表
+            fileList.innerHTML = '';
+            if (files.length > 0) {
+                fileList.style.display = 'block';
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (!file.type.startsWith('image/jpeg')) {
+                        alert(`第${i + 1}页文件格式不支持，请上传 JPG 格式的图片`);
+                        fileInput.value = ''; // 清空文件输入框
+                        return;
+                    }
+
+                    const listItem = document.createElement('div');
+                    listItem.className = 'file-item';
+                    listItem.innerHTML = `
+                        <span><i class="fas fa-image"></i> ${file.name}</span>
+                        <span>${formatFileSize(file.size)}</span>
+                        <button type="button" onclick="removeFile(${i})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    fileList.appendChild(listItem);
+                }
+            } else {
+                fileList.style.display = 'none';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeFile(index) {
+            const fileInput = document.getElementById('pages');
+            const files = Array.from(fileInput.files);
+            files.splice(index, 1);
+
+            // 创建新的FileList
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+
+            updatePageCount();
+
+            // 触发change事件
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
+
+        function validateForm() {
+            const title = document.getElementById('title').value;
+            const cover = document.getElementById('coverImage').files[0];
+            const pages = document.getElementById('pages').files;
+
+            if (!title.trim()) {
+                alert('请输入漫画标题');
+                return false;
+            }
+
+            if (!cover) {
+                alert('请选择封面图片');
+                return false;
+            }
+
+            // 验证封面图片大小
+            if (cover.size > 5 * 1024 * 1024) {
+                alert('封面图片大小不能超过5MB');
+                return false;
+            }
+
+            if (pages.length === 0) {
+                alert('请至少上传一页漫画');
+                return false;
+            }
+
+            // 验证漫画页面
+            for (let i = 0; i < pages.length; i++) {
+                const page = pages[i];
+                if (page.size > 5 * 1024 * 1024) {
+                    alert(`第${i + 1}页图片大小不能超过5MB`);
+                    return false;
+                }
+
+                // 验证文件类型
+                if (!page.type.startsWith('image/jpeg')) {
+                    alert(`第${i + 1}页文件格式不支持，请上传 JPG 格式的图片`);
+                    return false;
+                }
+            }
+
+            if (pages.length > 50) {
+                alert('一次最多只能上传50页漫画');
+                return false;
+            }
+
+            return true;
+        }
+
+        function sortFiles() {
+            const fileInput = document.getElementById('pages');
+            const files = Array.from(fileInput.files);
+
+            // 按文件名排序（确保上传顺序）
+            files.sort((a, b) => {
+                return a.name.localeCompare(b.name, undefined, { numeric: true });
+            });
+
+            // 创建新的FileList
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+
+            updatePageCount();
+        }
+    </script>
+</head>
+<body class="upload-page">
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <i class="fas fa-book"></i>
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="upload-header">
+        <h1><i class="fas fa-cloud-upload-alt"></i> 上传新漫画</h1>
+        <p>分享你的创意故事给全世界</p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <!-- 在upload.html的表单中，确保字段名正确 -->
+    <form th:action="@{/comics/upload}" method="post" enctype="multipart/form-data"
+          class="upload-form" onsubmit="return validateForm()">
+
+        <!-- ... 其他字段保持不变 ... -->
+
+        <div class="form-group">
+            <label for="title"><i class="fas fa-heading"></i> 漫画标题 *</label>
+            <input type="text" id="title" name="title" required
+                   placeholder="请输入漫画标题" maxlength="200">
+        </div>
+
+        <div class="form-group">
+            <label for="author"><i class="fas fa-user-pen"></i> 作者</label>
+            <input type="text" id="author" name="author"
+                   placeholder="请输入作者名称">
+        </div>
+
+        <div class="form-group">
+            <label for="description"><i class="fas fa-align-left"></i> 简介</label>
+            <textarea id="description" name="description" rows="4"
+                      placeholder="请描述你的漫画故事..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="tags"><i class="fas fa-tags"></i> 标签</label>
+            <input type="text" id="tags" name="tags"
+                   placeholder="输入标签，用逗号分隔 (例如：冒险,奇幻,热血)">
+            <small>常用标签: 冒险, 奇幻, 科幻, 恋爱, 校园, 热血, 悬疑, 恐怖, 搞笑, 治愈</small>
+        </div>
+        <div class="form-section">
+            <h2><i class="fas fa-image"></i> 封面图片</h2>
+
+            <div class="cover-upload">
+                <div class="cover-preview">
+                    <img id="coverPreview" src="" alt="封面预览" style="display:none;">
+                    <div class="upload-placeholder" id="coverPlaceholder">
+                        <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                        <p>点击选择封面图片</p>
+                        <small>建议尺寸: 400x600px，大小不超过5MB</small>
+                    </div>
+                </div>
+
+                <input type="file" id="coverImage" name="coverImage"
+                       accept="image/jpeg"
+                       required
+                       onchange="previewCover()"
+                       style="display: none;">
+
+                <div class="cover-actions">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('coverImage').click()">
+                        <i class="fas fa-folder-open"></i> 选择封面
+                    </button>
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('coverImage').value='';
+                                         document.getElementById('coverPreview').style.display='none';
+                                         document.getElementById('coverPlaceholder').style.display='flex';">
+                        <i class="fas fa-trash"></i> 清除
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2><i class="fas fa-book-open"></i> 漫画页面</h2>
+
+            <div class="pages-upload">
+                <div class="upload-header">
+                    <h3>批量上传页面</h3>
+                    <div class="upload-stats">
+                        <span id="pageCount">0</span> / 50 个文件
+                    </div>
+                </div>
+
+                <div class="upload-area"
+                     onclick="document.getElementById('pages').click()"
+                     ondrop="dropHandler(event);"
+                     ondragover="dragOverHandler(event);"
+                     ondragleave="dragLeaveHandler(event);">
+                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                    <p>拖放文件到这里 或 点击选择</p>
+                    <small>支持 JPG 格式，每个文件不超过5MB</small>
+                    <button type="button" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-folder-open"></i> 选择文件
+                    </button>
+                </div>
+
+                <input type="file" id="pages" name="pages"
+                       accept="image/jpeg"
+                       multiple
+                       required
+                       onchange="updatePageCount()"
+                       style="display: none;">
+
+                <div id="fileList" class="file-list" style="display: none;">
+                    <div class="file-list-header">
+                        <h4>已选择的文件</h4>
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="sortFiles()">
+                            <i class="fas fa-sort-alpha-down"></i> 排序
+                        </button>
+                    </div>
+                    <!-- 文件列表会动态添加到这里 -->
+                </div>
+
+                <div class="upload-tips">
+                    <h4><i class="fas fa-lightbulb"></i> 上传提示:</h4>
+                    <ul>
+                        <li>支持批量选择多个文件（按住Ctrl或Shift键）</li>
+                        <li>文件名将决定阅读顺序，建议按顺序命名</li>
+                        <li>单次最多可上传50张图片</li>
+                        <li>每张图片大小不超过5MB</li>
+                        <li>建议尺寸: 宽度600-800px，高度不限</li>
+                        <li>支持拖放文件到上传区域</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='/comics'">
+                <i class="fas fa-times"></i> 取消
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> 上传漫画
+            </button>
+        </div>
+    </form>
+</main>
+
+<script>
+    // 拖放功能
+    function dragOverHandler(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.style.background = '#f0f7ff';
+        event.currentTarget.style.borderColor = '#4CAF50';
+    }
+
+    function dragLeaveHandler(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.style.background = '';
+        event.currentTarget.style.borderColor = '#667eea';
+    }
+
+    function dropHandler(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const uploadArea = event.currentTarget;
+        uploadArea.style.background = '';
+        uploadArea.style.borderColor = '#667eea';
+
+        const files = event.dataTransfer.files;
+        if (files.length === 0) return;
+
+        const fileInput = document.getElementById('pages');
+        const existingFiles = Array.from(fileInput.files);
+
+        // 过滤出图片文件
+        const imageFiles = Array.from(files).filter(file =>
+            file.type.startsWith('image/jpeg')
+        );
+
+        if (imageFiles.length === 0) {
+            alert('请只拖放 JPG 格式的图片');
+            return;
+        }
+
+        // 检查文件数量限制
+        if (existingFiles.length + imageFiles.length > 50) {
+            alert(`最多只能上传50个文件。您已选择了${existingFiles.length}个文件。`);
+            return;
+        }
+
+        // 合并文件
+        const allFiles = [...existingFiles, ...imageFiles];
+
+        // 创建新的FileList
+        const dataTransfer = new DataTransfer();
+        allFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+
+        // 更新显示
+        updatePageCount();
+
+        // 触发change事件
+        const changeEvent = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(changeEvent);
+
+        // 显示成功消息
+        showMessage(`成功添加了${imageFiles.length}个文件`);
+    }
+
+    function showMessage(text) {
+        const message = document.createElement('div');
+        message.className = 'alert alert-success';
+        message.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${text}</span>
+            `;
+        message.style.position = 'fixed';
+        message.style.top = '20px';
+        message.style.right = '20px';
+        message.style.zIndex = '9999';
+        message.style.minWidth = '200px';
+
+        document.body.appendChild(message);
+
+        setTimeout(() => {
+            message.remove();
+        }, 3000);
+    }
+
+    // 文件输入框变化时，更新已选文件
+    document.getElementById('pages').addEventListener('change', function(e) {
+        updatePageCount();
+    });
+
+    // 点击上传区域触发文件选择
+    document.querySelector('.upload-area').addEventListener('click', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+            document.getElementById('pages').click();
+        }
+    });
+
+    // 点击封面预览区域
+    document.getElementById('coverPlaceholder').addEventListener('click', function() {
+        document.getElementById('coverImage').click();
+    });
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePageCount();
+    });
+</script>
+</body>
+</html>

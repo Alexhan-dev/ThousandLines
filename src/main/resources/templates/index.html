@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>千际线 - Thousand Lines</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 添加 GitHub 图标的链接 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
+    <!-- 添加网站图标 -->
+    <link rel="icon" href="/images/logo.png" type="image/png">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <img src="/images/logo.png" alt="Thousand Lines Logo" class="logo-img">
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="search-box">
+            <form action="/comics/search" method="get" class="search-form">
+                <input type="text" name="keyword" placeholder="搜索漫画、作者或标签..."
+                       th:value="${keyword}" required>
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
+            <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
+            <!-- 添加 GitHub 图标的链接 -->
+            <a href="javascript:void(0);" onclick="JumpToGithub()">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="hero">
+        <h1>欢迎来到千际线</h1>
+        <p>探索无尽的漫画世界，发现属于你的故事</p>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="quick-search">
+        <form action="/comics/search" method="get" class="quick-search-form">
+            <div class="search-fields">
+                <input type="text" name="title" placeholder="漫画标题"
+                       th:value="${title}">
+                <input type="text" name="author" placeholder="作者"
+                       th:value="${author}">
+                <select name="tag" th:if="${allTags}">
+                    <option value="">选择标签</option>
+                    <option th:each="tag : ${allTags}"
+                            th:value="${tag}"
+                            th:text="${tag}"
+                            th:selected="${tag == param.tag}"></option>
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 排序选项 -->
+    <div class="sort-options">
+        <a href="/comics" th:class="${sort == null} ? 'active' : ''">
+            <i class="fas fa-list"></i> 全部
+        </a>
+        <a href="/comics?sort=latest" th:class="${sort == 'latest'} ? 'active' : ''">
+            <i class="fas fa-clock"></i> 最新
+        </a>
+        <a href="/comics?sort=popular" th:class="${sort == 'popular'} ? 'active' : ''">
+            <i class="fas fa-fire"></i> 热门
+        </a>
+    </div>
+
+    <!-- 搜索结果显示 -->
+    <div th:if="${searchPerformed}" class="search-result">
+        <h2>
+            <i class="fas fa-search"></i>
+            <span th:if="${keyword}">搜索结果: "<span th:text="${keyword}"></span>"</span>
+            <span th:if="${title}">标题包含: "<span th:text="${title}"></span>"</span>
+            <span th:if="${author}">作者包含: "<span th:text="${author}"></span>"</span>
+            <span th:if="${tag}">标签: "<span th:text="${tag}"></span>"</span>
+            <small class="result-count">找到 <span th:text="${totalItems}"></span> 个结果</small>
+        </h2>
+    </div>
+
+    <!-- 漫画列表 -->
+    <div class="comics-grid">
+        <div th:each="comic : ${comics}" class="comic-card">
+            <a th:href="@{/comics/{id}(id=${comic.id})}">
+                <div class="comic-cover">
+                    <img th:src="@{/uploads/{path}(path=${comic.coverImagePath})}"
+                         th:alt="${comic.title}"
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQ1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjY2NjIj7lm77lg4/lsI/lsIQ8L3RleHQ+PC9zdmc+'">
+                    <div class="comic-overlay">
+                        <span><i class="fas fa-eye"></i> <span th:text="${comic.viewCount}"></span></span>
+                        <span><i class="fas fa-file-image"></i> <span th:text="${comic.chapterCount}"></span>页</span>
+                    </div>
+                </div>
+                <div class="comic-info">
+                    <h3 th:text="${comic.title}"></h3>
+                    <p class="comic-author" th:text="${comic.author} ?: '未知作者'"></p>
+                    <div th:if="${comic?.description != null}">
+                        <p th:if="${comic.description != null and comic.description != ''}">
+                            <span th:text="${#strings.abbreviate(comic.description, 100)}"></span>
+                        </p>
+                    </div>
+                    <div class="comic-tags">
+                            <span th:each="tag : ${comic.tags}"
+                                  class="tag" th:text="${tag.name}"></span>
+                    </div>
+                    <div class="comic-meta">
+                        <small><i class="fas fa-calendar"></i> th:text="${#temporals.format(eventDate, 'yyyy-MM-dd HH:mm:ss')}"></span></small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 分页导航（普通浏览） -->
+    <div th:if="${totalPages > 1 and !searchPerformed}" class="pagination">
+            <span class="pagination-info">
+                显示 <span th:text="${currentPage * 12 + 1}"></span> -
+                <span th:text="${(currentPage + 1) * 12 > totalItems ? totalItems : (currentPage + 1) * 12}"></span>
+                条，共 <span th:text="${totalItems}"></span> 条
+            </span>
+
+        <!-- 第一页 -->
+        <a th:href="@{/comics(sort=${sort}, page=0)}"
+           class="page-link"
+           th:classappend="${currentPage == 0} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+
+        <!-- 上一页 -->
+        <a th:href="@{/comics(sort=${sort}, page=${currentPage - 1})}"
+           class="page-link"
+           th:classappend="${currentPage == 0} ? 'disabled' : ''">
+            <i class="fas fa-angle-left"></i>
+        </a>
+
+        <!-- 页码 -->
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/comics(sort=${sort}, page=${i})}"
+                   th:text="${i + 1}"
+                   class="page-link"
+                   th:classappend="${currentPage == i} ? 'active' : ''"></a>
+            </span>
+
+        <!-- 下一页 -->
+        <a th:href="@{/comics(sort=${sort}, page=${currentPage + 1})}"
+           class="page-link"
+           th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+            <i class="fas fa-angle-right"></i>
+        </a>
+
+        <!-- 最后一页 -->
+        <a th:href="@{/comics(sort=${sort}, page=${totalPages - 1})}"
+           class="page-link"
+           th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+    </div>
+
+    <!-- 分页导航（搜索） -->
+    <div th:if="${searchPerforme > 1 and totalPages > 1}" class="pagination">
+            <span class="pagination-info">
+                显示 <span th:text="${currentPage * 12 + 1}"></span> -
+                <span th:text="${(currentPage + 1) * 12 > totalItems ? totalItems : (currentPage + 1) * 12}"></span>
+                条，共 <span th:text="${totalItems}"></span> 条
+            </span>
+
+        <!-- 第一页 -->
+        <a th:href="@{/comics/search(keyword=${keyword}, title=${title}, author=${author}, tag=${tag}, page=0)}"
+           class="page-link"
+           th:classappend="${currentPage == 0} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+
+        <!-- 上一页 -->
+        <a th:href="@{/comics/search(keyword=${keyword}, title=${title}, author=${author}, tag=${tag}, page=${currentPage - 1})}"
+           class="page-link"
+           th:classappend="${currentPage == 0} ? 'disabled' : ''">
+            <i class="fas fa-angle-left"></i>
+        </a>
+
+        <!-- 页码 -->
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/comics/search(keyword=${keyword}, title=${title}, author=${author}, tag=${tag}, page=${i})}"
+                   th:text="${i + 1}"
+                   class="page-link"
+                   th:classappend="${currentPage == i} ? 'active' : ''"></a>
+            </span>
+
+        <!-- 下一页 -->
+        <a th:href="@{/comics/search(keyword=${keyword}, title=${title}, author=${author}, tag=${tag}, page=${currentPage + 1})}"
+           class="page-link"
+           th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+            <i class="fas fa-angle-right"></i>
+        </a>
+
+        <!-- 最后一页 -->
+        <a th:href="@{/comics/search(keyword=${keyword}, title=${title}, author=${author}, tag=${tag}, page=${totalPages - 1})}"
+           class="page-link"
+           th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+    </div>
+
+    <div th:if="${searchNoResult}" class="empty-state">
+        <i class="fas fa-search fa-3x"></i>
+        <h3>未找到匹配的漫画</h3>
+        <p>请尝试其他搜索条件或返回<a href="/comics">首页</a></p>
+        <a href="/comics/advanced-search" class="btn btn-primary">
+            <i class="fas fa-search-plus"></i> 尝试高级搜索
+        </a>
+    </div>
+
+    <div th:if="${comics?: false and !searchPerformed and !searchNoResult}" class="empty-state">
+        <i class="fas fa-book-open fa-3x"></i>
+        <h3>暂无漫画</h3>
+        <p th:if="${session.user?.role == T(wtf.alexhan.thousandlines.model.UserRole).CREATOR}">
+            开始上传你的第一部漫画吧！
+        </p>
+        <p th:unless="${session.user}">请先登录或注册创作者账户</p>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; Thousand Lines - 千际线. Powered by TLVL</p>
+        <!-- 添加 GitHub 图标的链接 -->
+        <a href="javascript:void(0);" onclick="JumpToGithub()">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+    </div>
+</footer>
+
+<script>
+    function JumpToGithub(){
+        window.location.href = 'https://github.com/your-repo-url'; // 替换为你的 GitHub 仓库 URL
+    }
+    // 页面加载后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 图片加载失败处理
+        const images = document.querySelectorAll('.comic-cover img');
+        images.forEach(img => {
+            img.addEventListener('error', function() {
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQ1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjY2NjIj7lm77lg4/lsI/lsIQ8L3RleHQ+PC9zdmc+';
+            });
+        });
+
+        // 搜索表单提交
+        const searchForm = document.querySelector('.search-form');
+        if (searchForm) {
+            const searchInput = searchForm.querySelector('input[name="keyword"]');
+
+            searchForm.addEventListener('submit', function(e) {
+                if (!searchInput.value.trim()) {
+                    e.preventDefault();
+                    alert('请输入搜索关键词');
+                    searchInput.focus();
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // 快速搜索
+        const quickSearchForm = document.querySelector('.quick-search-form');
+        if (quickSearchForm) {
+            const quickSearchFields = quickSearchForm.querySelectorAll('input, select');
+
+            quickSearchForm.addEventListener('submit', function(e) {
+                let hasValue = false;
+                quickSearchFields.forEach(field => {
+                    if (field.value && field.value.trim()) {
+                        hasValue = true;
+                    }
+                });
+
+                if (!hasValue) {
+                    e.preventDefault();
+                    alert('请至少填写一个搜索条件');
+                    return false;
+                }
+                return true;
+            });
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // 检查是否有漫画
+        const comicsGrid = document.querySelector('.comics-grid');
+        const comicCards = document.querySelectorAll('.comic-card');
+
+        // 检查是否在搜索结果页面
+        const searchResult = document.querySelector('.search-result');
+        const isSearchPage = searchResult !== null;
+
+        if (comicCards.length === 0) {
+            // 创建空状态容器
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+
+            if (isSearchPage) {
+                // 搜索无结果
+                emptyState.innerHTML = `
+                    <i class="fas fa-search fa-3x"></i>
+                    <h3>未找到匹配的漫画</h3>
+                    <p>请尝试其他搜索条件或返回<a href="/comics">首页</a></p>
+                    <a href="/comics/advanced-search" class="btn btn-primary">
+                        <i class="fas fa-search-plus"></i> 尝试高级搜索
+                    </a>
+                `;
+            } else {
+                // 暂无漫画
+                const isCreator = false; // 这里可以从服务器获取用户角色
+                const isLoggedIn = false; // 这里可以从服务器获取登录状态
+
+                let message = '';
+                if (isCreator) {
+                    message = '<p>开始上传你的第一部漫画吧！</p>';
+                } else if (!isLoggedIn) {
+                    message = '<p>请先登录或注册创作者账户</p>';
+                }
+
+                emptyState.innerHTML = `
+                    <i class="fas fa-book-open fa-3x"></i>
+                    <h3>暂无漫画</h3>
+                    ${message}
+                `;
+            }
+
+            // 插入到漫画网格后面
+            if (comicsGrid) {
+                comicsGrid.parentNode.insertBefore(emptyState, comicsGrid.nextSibling);
+            }
+        }
+    });
+</script>
+</body>
+</html>

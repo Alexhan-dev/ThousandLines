@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级搜索 - 千际线</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <i class="fas fa-book"></i>
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="search-box">
+            <form action="/comics/search" method="get" class="search-form">
+                <input type="text" name="keyword" placeholder="搜索漫画或标签...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
+            <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="search-container">
+        <div class="search-header">
+            <h1><i class="fas fa-search"></i> 高级搜索</h1>
+            <p>使用多个条件精确查找你想要的漫画</p>
+        </div>
+
+        <form action="/comics/search" method="get" class="advanced-search-form">
+            <div class="search-grid">
+                <div class="search-field">
+                    <label for="title"><i class="fas fa-heading"></i> 漫画标题</label>
+                    <input type="text" id="title" name="title"
+                           placeholder="请输入漫画标题关键词">
+                </div>
+
+                <div class="search-field">
+                    <label for="author"><i class="fas fa-user-pen"></i> 作者</label>
+                    <input type="text" id="author" name="author"
+                           placeholder="请输入作者名称">
+                </div>
+
+                <div class="search-field">
+                    <label for="tag"><i class="fas fa-tags"></i> 标签</label>
+                    <select id="tag" name="tag" class="tag-select">
+                        <option value="">选择标签...</option>
+                        <option th:each="tag : ${allTags}"
+                                th:value="${tag}"
+                                th:text="${tag}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 开始搜索
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> 重置条件
+                </button>
+                <a href="/comics" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 返回首页
+                </a>
+            </div>
+        </form>
+
+        <div class="search-tips">
+            <h3><i class="fas fa-lightbulb"></i> 搜索技巧：</h3>
+            <ul>
+                <li>可以只填写一个条件，也可以同时使用多个条件</li>
+                <li>多个条件之间是"与"的关系，即同时满足所有条件</li>
+                <li>支持模糊搜索，输入部分关键词即可</li>
+                <li>搜索不区分大小写</li>
+            </ul>
+        </div>
+
+        <div class="popular-tags">
+            <h3><i class="fas fa-tags"></i> 热门标签：</h3>
+            <div class="tags-cloud">
+                <a th:each="tag : ${allTags}"
+                   th:href="@{/comics/search(tag=${tag})}"
+                   class="tag-link" th:text="${tag}"></a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; 2024 Thousand Lines - 千际线. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // 初始化Select2
+        $('.tag-select').select2({
+            placeholder: '选择标签...',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // 表单验证
+        $('.advanced-search-form').on('submit', function(e) {
+            const title = $('#title').val();
+            const author = $('#author').val();
+            const tag = $('#tag').val();
+
+            if (!title && !author && !tag) {
+                alert('请至少填写一个搜索条件！');
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+
+        // 回车键搜索
+        $('.advanced-search-form input').keypress(function(e) {
+            if (e.which === 13) {
+                $('.advanced-search-form').submit();
+                return false;
+            }
+        });
+    });
+</script>
+</body>
+</html>

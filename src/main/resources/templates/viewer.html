@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${comic.title} + ' - 千际线'"></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/viewer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="viewer-page">
+<nav class="viewer-nav">
+    <div class="nav-left">
+        <a href="/comics" class="back-btn">
+            <i class="fas fa-arrow-left"></i> 返回
+        </a>
+        <h1 th:text="${comic.title}"></h1>
+    </div>
+
+    <div class="nav-right">
+            <span class="view-count">
+                <i class="fas fa-eye"></i> [[${comic.viewCount}]]
+            </span>
+        <a th:if="${canDelete}"
+           th:href="@{/comics/{id}/delete(id=${comic.id})}"
+           class="delete-btn"
+           onclick="return confirm('确定要删除这个漫画吗？此操作不可恢复。')">
+            <i class="fas fa-trash"></i> 删除
+        </a>
+    </div>
+</nav>
+
+<main class="viewer-container">
+    <div class="comic-header">
+        <div class="cover-container">
+            <img th:src="@{/uploads/{path}(path=${comic.coverImagePath})}"
+                 th:alt="${comic.title}">
+        </div>
+
+        <div class="comic-meta">
+            <h1 th:text="${comic.title}"></h1>
+            <div class="meta-info">
+                    <span class="author">
+                        <i class="fas fa-user-pen"></i>
+                        <span th:text="${comic.author} ?: '未知作者'"></span>
+                    </span>
+                <span class="date">
+                        <i class="fas fa-calendar"></i>
+                        [[${#temporals.format(comic.createdAt, 'yyyy-MM-dd')}]]
+                    </span>
+                <span class="pages">
+                        <i class="fas fa-file-image"></i>
+                        [[${comic.chapterCount}]] 页
+                    </span>
+            </div>
+
+            <div th:if="${comic.description}" class="comic-description">
+                <h3><i class="fas fa-align-left"></i> 简介</h3>
+                <p th:text="${comic.description}"></p>
+            </div>
+
+            <div class="comic-tags">
+                <h3><i class="fas fa-tags"></i> 标签</h3>
+                <div class="tags-list">
+                        <span th:each="tag : ${comic.tags}"
+                              class="tag" th:text="${tag.name}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reader-section">
+        <h2><i class="fas fa-book-open"></i> 开始阅读</h2>
+
+        <div class="reader-controls">
+            <button id="prevBtn" class="btn-control">
+                <i class="fas fa-chevron-up"></i> 上一页
+            </button>
+
+            <div class="page-counter">
+                <span id="currentPage">1</span> / <span id="totalPages">[[${comic.chapterCount}]]</span>
+            </div>
+
+            <button id="nextBtn" class="btn-control">
+                下一页 <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+
+        <div class="comic-reader" id="comicReader">
+            <!-- 漫画页面将通过JavaScript动态加载 -->
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p>正在加载漫画...</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/viewer.js"></script>
+<script>
+    const comicId = [[${comic.id}]];
+    const comicFolder = '[[${comic.folderPath}]]';
+    const totalPages = [[${comic.chapterCount}]];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initViewer(comicId, comicFolder, totalPages);
+    });
+</script>
+</body>
+</html>
