@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 - 千际线</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .auth-page {
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .auth-container {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .auth-card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    .auth-links {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .auth-links a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+    .auth-info {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .auth-info h4 {
+      margin-bottom: 10px;
+    }
+    .auth-info ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .auth-info ul li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body class="auth-page">
+<div class="auth-container">
+  <div class="auth-header">
+    <a href="/comics" class="logo">
+      <i class="fas fa-book"></i>
+      <span>Thousand Lines</span>
+      <small>千际线</small>
+    </a>
+  </div>
+
+  <div class="auth-card">
+    <h2>用户注册</h2>
+
+    <div th:if="${error}" class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/auth/register}" method="post" class="auth-form">
+      <div class="form-group">
+        <label for="username">
+          <i class="fas fa-user"></i> 用户名
+        </label>
+        <input type="text" id="username" name="username" required
+               placeholder="请输入用户名">
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock"></i> 密码
+        </label>
+        <input type="password" id="password" name="password" required
+               placeholder="请输入密码">
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password">
+          <i class="fas fa-lock"></i> 确认密码
+        </label>
+        <input type="password" id="confirm-password" name="confirm-password" required
+               placeholder="请再次输入密码">
+      </div>
+
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> 邮箱
+        </label>
+        <input type="email" id="email" name="email" required
+               placeholder="请输入邮箱">
+      </div>
+
+      <div class="form-group">
+        <label for="inviteCode">
+          <i class="fas fa-ticket-alt"></i> 邀请码
+        </label>
+        <input type="text" id="inviteCode" name="inviteCode"
+               placeholder="请输入邀请码（可选）">
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> 注册
+      </button>
+
+      <div class="auth-links">
+        <a href="/auth/login">
+          <i class="fas fa-arrow-left"></i> 返回登录
+        </a>
+      </div>
+    </form>
+
+    <div class="auth-info">
+      <h4>关于账户类型:</h4>
+      <ul>
+        <li><strong>普通用户:</strong> 仅可浏览和阅读漫画</li>
+        <li><strong>创作者(Creator):</strong> 可上传和删除自己的漫画</li>
+        <li><strong>管理员(Admin):</strong> 拥有所有权限</li>
+      </ul>
+      <p>默认管理员账户: admin / admin123</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

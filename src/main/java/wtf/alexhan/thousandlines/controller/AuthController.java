@@ -1,13 +1,18 @@
 package wtf.alexhan.thousandlines.controller;
 
-
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import wtf.alexhan.thousandlines.dto.LoginRequest;
+import wtf.alexhan.thousandlines.dto.RegRequest;
 import wtf.alexhan.thousandlines.model.User;
 import wtf.alexhan.thousandlines.service.UserService;
+
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/auth")
@@ -32,7 +37,7 @@ public class AuthController {
                     .orElseThrow(() -> new RuntimeException("用户不存在"));
 
             if (!userService.validatePassword(request.getPassword(), user.getPassword())) {
-                System.out.println(request.getPassword()+": WTF Brooo ："+user.getPassword());
+                System.out.println(request.getPassword() + ": WTF Brooo ：" + user.getPassword());
                 throw new RuntimeException("密码错误");
             }
 
@@ -48,5 +53,27 @@ public class AuthController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    @GetMapping("/register")
+    public String showRegisterPage() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(@ModelAttribute RegRequest regRequest, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "表单验证失败，请检查输入");
+            return "register";
+        }
+
+        try {
+            userService.registerUser(regRequest);
+            model.addAttribute("success", "注册成功，请登录");
+            return "login";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "register";
+        }
     }
 }
