@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>千际线 - Thousand Lines</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/profile.css"> <!-- 假设你有一个CSS文件 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
+    <link rel="icon" href="/images/logo.jpg" type="image/png">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <img src="/images/logo.jpg" alt="Thousand Lines Logo" class="logo-img">
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="search-box">
+            <form action="/comics/search" method="get" class="search-form">
+                <input type="text" name="keyword" placeholder="搜索漫画、作者或标签..."
+                       th:value="${keyword}" required>
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
+            <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
+            <a href="javascript:void(0);" onclick="JumpToGithub()">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="profile-container">
+        <h1 th:text="${user?.username} + ' 的个人主页'"></h1>
+        
+        <!-- 错误提示 -->
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 头像上传区域 -->
+        <div class="avatar-upload-section" th:if="${isOwnProfile}">
+            <img th:src="${user?.avatarPath} ? '/uploads/comics/' + ${user?.avatarPath} : '/images/default-avatar.png'" alt="用户头像" class="avatar" id="avatarPreview">
+            <div class="avatar-upload-controls">
+                <form th:action="@{/profile/{username}/upload-avatar(username=${user?.username})}" 
+                      method="post" 
+                      enctype="multipart/form-data"
+                      class="avatar-upload-form">
+                    <div class="file-input-wrapper">
+                        <input type="file" 
+                               id="avatarFile" 
+                               name="avatarFile" 
+                               accept="image/jpeg"
+                               onchange="previewAvatar(event)">
+                        <label for="avatarFile" class="btn btn-secondary">
+                            <i class="fas fa-upload"></i> 选择头像
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 上传头像
+                    </button>
+                </form>
+            </div>
+            <div class="avatar-upload-tips">
+                <small><i class="fas fa-info-circle"></i> 支持 JPG 格式，建议尺寸 200x200px</small>
+            </div>
+        </div>
+        
+        <!-- 非本用户访问时只显示头像，不显示上传功能 -->
+        <div class="avatar-display-section" th:unless="${isOwnProfile}">
+            <img th:src="${user?.avatarPath} ? '/uploads/comics/' + ${user?.avatarPath} : '/images/default-avatar.png'" alt="用户头像" class="avatar">
+        </div>
+        
+        <p><strong>个人简介:</strong> <span th:text="${user?.bio}"></span></p>
+
+        <!-- 个人简介更新表单，只在本用户访问时显示 -->
+        <form th:action="@{/profile/{username}/update(username=${user?.username})}" method="post" class="profile-form" th:if="${isOwnProfile}">
+            <label for="bio">个人简介:</label>
+            <textarea id="bio" name="bio" th:text="${user?.bio}"></textarea>
+            <br>
+            <button type="submit" class="btn btn-primary">更新</button>
+        </form>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; Thousand Lines - 千际线. Powered by TLVL</p>
+        <a href="javascript:void(0);" onclick="JumpToGithub()">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+    </div>
+</footer>
+
+<script>
+    function JumpToGithub(){
+        window.location.href = 'https://github.com/your-repo-url'; // 替换为你的 GitHub 仓库 URL
+    }
+    
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+</body>
+</html>

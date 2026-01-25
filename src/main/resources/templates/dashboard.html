@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isOwnDashboard} ? '我的仪表盘 - 千际线' : ${user?.username} + ' 的仪表盘 - 千际线'"></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/images/logo.jpg" type="image/png">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <img src="/images/logo.jpg" alt="Thousand Lines Logo" class="logo-img">
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="search-box">
+            <form action="/comics/search" method="get" class="search-form">
+                <input type="text" name="keyword" placeholder="搜索漫画、作者或标签..." required>
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
+            <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/dashboard"><i class="fas fa-chart-line"></i> 仪表盘</a>
+            <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
+            <a href="javascript:void(0);" onclick="JumpToGithub()">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="dashboard-container">
+        <h1><i class="fas fa-chart-line"></i> <span th:text="${isOwnDashboard} ? '我的仪表盘' : ${user?.username} + ' 的仪表盘'"></span></h1>
+        
+        <!-- 用户信息卡片 -->
+        <div class="user-info-card">
+            <div class="user-avatar">
+                <img th:src="${user?.avatarPath} ? '/uploads/comics/' + ${user?.avatarPath} : '/uploads/avatar/exampleUser.jpg'" alt="用户头像" class="avatar">
+            </div>
+            <div class="user-details">
+                <h2 th:text="${user?.username}"></h2>
+                <p th:text="${user?.email}"></p>
+                <p th:text="${user?.bio}"></p>
+            </div>
+            <div class="user-stats">
+                <div class="stat-item">
+                    <div class="stat-number" th:text="${totalComics}"></div>
+                    <div class="stat-label">上传漫画</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" th:text="${totalViews}"></div>
+                    <div class="stat-label">总浏览量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" th:text="${comics?.size()}"></div>
+                    <div class="stat-label">活跃漫画</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作按钮区 -->
+        <div class="action-buttons" th:if="${isOwnDashboard}">
+            <a href="/comics/upload" class="btn btn-primary"><i class="fas fa-upload"></i> 上传新漫画</a>
+            <a th:href="@{/profile/{username}(username=${user?.username})}" class="btn btn-secondary"><i class="fas fa-user-edit"></i> 编辑个人资料</a>
+        </div>
+        
+        <!-- 我的漫画列表 -->
+        <div class="my-comics-section">
+            <h2><i class="fas fa-book"></i> 我的漫画</h2>
+            <div class="comics-grid" th:if="${comics != null and comics.size() > 0}">
+                <div class="comic-card" th:each="comic : ${comics}">
+                    <div class="comic-cover">
+                        <img th:src="${comic?.coverImagePath}" alt="漫画封面" class="cover-img">
+                        <div class="comic-actions">
+                            <a th:href="@{/comic/{id}(id=${comic?.id})}" class="action-btn view-btn"><i class="fas fa-eye"></i> 查看</a>
+                            <a th:if="${isOwnDashboard}" th:href="@{/comic/{id}/edit(id=${comic?.id})}" class="action-btn edit-btn"><i class="fas fa-edit"></i> 编辑</a>
+                            <a th:if="${isOwnDashboard}" th:href="@{/comic/{id}/delete(id=${comic?.id})}" class="action-btn delete-btn"><i class="fas fa-trash"></i> 删除</a>
+                        </div>
+                    </div>
+                    <div class="comic-info">
+                        <h3 th:text="${comic?.title}"></h3>
+                        <p class="comic-author" th:text="${comic?.author}"></p>
+                        <div class="comic-stats">
+                            <span class="stat"><i class="fas fa-eye"></i> <span th:text="${comic?.viewCount}"></span></span>
+                            <span class="stat"><i class="fas fa-book-open"></i> <span th:text="${comic?.chapterCount}"></span> 章</span>
+                        </div>
+                        <div class="comic-tags">
+                            <span class="tag" th:each="tag : ${comic?.tags}" th:text="${tag?.name}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="empty-state" th:if="${comics == null or comics.size() == 0}">
+                <i class="fas fa-book-open"></i>
+                <h3 th:text="${isOwnDashboard} ? '您还没有上传任何漫画' : ${user?.username} + ' 还没有上传任何漫画'"></h3>
+                <p th:if="${isOwnDashboard}">点击上方的"上传新漫画"按钮开始分享您的作品吧！</p>
+            </div>
+        </div>
+        
+        <!-- 最近活动 -->
+        <div class="activity-section">
+            <h2><i class="fas fa-history"></i> 最近活动</h2>
+            <div class="activity-list">
+                <div class="activity-item" th:each="comic : ${comics}">
+                    <div class="activity-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>
+                            <strong>上传了漫画</strong> <a th:href="@{/comic/{id}(id=${comic?.id})}" th:text="${comic?.title}"></a>
+                        </p>
+                        <span class="activity-time" th:text="${comic?.createdAt}"></span>
+                    </div>
+                </div>
+                <div class="activity-item" th:if="${comics == null or comics.size() == 0}">
+                    <div class="activity-content">
+                        <p>暂无活动记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; Thousand Lines - 千际线. Powered by TLVL</p>
+        <a href="javascript:void(0);" onclick="JumpToGithub()">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+    </div>
+</footer>
+
+<script>
+    function JumpToGithub(){
+        window.location.href = 'https://github.com/your-repo-url'; // 替换为你的 GitHub 仓库 URL
+    }
+</script>
+</body>
+</html>

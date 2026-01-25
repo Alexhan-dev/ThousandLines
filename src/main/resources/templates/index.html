@@ -9,13 +9,13 @@
     <!-- 添加 GitHub 图标的链接 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
     <!-- 添加网站图标 -->
-    <link rel="icon" href="/images/logo.png" type="image/png">
+    <link rel="icon" href="/images/logo.jpg" type="image/png">
 </head>
 <body>
 <nav class="navbar">
     <div class="nav-container">
         <a href="/comics" class="logo">
-            <img src="/images/logo.png" alt="Thousand Lines Logo" class="logo-img">
+            <img src="/images/logo.jpg" alt="Thousand Lines Logo" class="logo-img">
             <span>Thousand Lines</span>
             <small>千际线</small>
         </a>
@@ -32,6 +32,7 @@
             <a href="/comics"><i class="fas fa-home"></i> 首页</a>
             <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
             <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/dashboard"><i class="fas fa-chart-line"></i> 仪表盘</a>
             <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
             <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
             <!-- 添加 GitHub 图标的链接 -->

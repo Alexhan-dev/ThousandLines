@@ -61,9 +61,18 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute RegRequest regRequest, BindingResult bindingResult, Model model) {
+    public String register(@ModelAttribute RegRequest regRequest, 
+                          @RequestParam(required = false) boolean agreeTerms,
+                          BindingResult bindingResult, 
+                          Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "表单验证失败，请检查输入");
+            return "register";
+        }
+        
+        // 检查用户协议是否同意
+        if (!agreeTerms) {
+            model.addAttribute("error", "请阅读并同意用户协议");
             return "register";
         }
 

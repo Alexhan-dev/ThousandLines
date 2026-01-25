@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户协议 - 千际线</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/images/logo.jpg" type="image/png">
+    <style>
+        .terms-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .terms-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .terms-header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .terms-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .terms-section {
+            margin-bottom: 25px;
+        }
+        
+        .terms-section h2 {
+            color: #007bff;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+        }
+        
+        .terms-section h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+        
+        .terms-section p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .terms-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .terms-section li {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .terms-section strong {
+            color: #333;
+        }
+        
+        .terms-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .terms-actions {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 1em;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .last-updated {
+            text-align: right;
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/comics" class="logo">
+            <img src="/images/logo.jpg" alt="Thousand Lines Logo" class="logo-img">
+            <span>Thousand Lines</span>
+            <small>千际线</small>
+        </a>
+
+        <div class="search-box">
+            <form action="/comics/search" method="get" class="search-form">
+                <input type="text" name="keyword" placeholder="搜索漫画、作者或标签..."
+                       th:value="${keyword}" required>
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/comics"><i class="fas fa-home"></i> 首页</a>
+            <a href="/comics/advanced-search"><i class="fas fa-search-plus"></i> 高级搜索</a>
+            <a th:if="${session.user}" href="/comics/upload"><i class="fas fa-upload"></i> 上传漫画</a>
+            <a th:if="${session.user}" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> 退出</a>
+            <a th:unless="${session.user}" href="/auth/login"><i class="fas fa-sign-in-alt"></i> 登录</a>
+            <a href="javascript:void(0);" onclick="JumpToGithub()">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <div class="terms-container">
+        <div class="terms-header">
+            <h1><i class="fas fa-file-contract"></i> 用户协议</h1>
+            <p>欢迎使用千际线（Thousand Lines）漫画分享平台</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>一、协议接受</h2>
+            <p>欢迎您使用千际线（Thousand Lines）漫画分享平台（以下简称"本平台"）。通过访问或使用本平台，即表示您已阅读、理解并同意遵守本用户协议（以下简称"本协议"）的所有条款和条件。如果您不同意本协议的任何条款，请停止使用本平台。</p>
+            <p>本协议可由本平台随时更新，更新后的协议条款一旦公布即代替原来的协议条款，恕不再另行通知。您可随时查阅最新版用户协议。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>二、用户注册</h2>
+            <h3>2.1 注册资格</h3>
+            <p>您确认，在您完成注册程序或以其他本平台允许的方式实际使用本平台服务时，您应当是具备完全民事权利能力和完全民事行为能力的自然人、法人或其他组织。</p>
+            
+            <h3>2.2 注册信息</h3>
+            <p>您应当按照法律法规要求，按相应页面的提示准确提供并及时更新您的资料，以使之真实、及时、完整和准确。如有合理理由怀疑您提供的资料错误、不实、过时或不完整的，本平台有权向您发出询问或要求改正的通知，并有权直接做出删除相应资料的处理，直至中止、终止对您提供部分或全部本平台服务，本平台对此不承担任何责任，您将承担因此产生的任何直接或间接损失及不利后果。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>三、用户账号安全</h2>
+            <p>您须自行负责对您的登录名、昵称和密码保密，且须对该登录名、昵称和密码下发生的所有活动（包括但不限于信息披露、发布信息、网上点击同意或提交各类规则协议、网上续签协议或购买服务等）承担责任。</p>
+            <p>您同意：</p>
+            <ul>
+                <li>如发现任何人未经授权使用您的登录名、昵称和密码，或发生违反保密规定的任何其他情况，您会立即通知本平台；</li>
+                <li>确保您在每个上网时段结束时，以正确步骤离开网站/服务。</li>
+            </ul>
+            <p>本平台不能也不会对因您未能遵守本款规定而发生的任何损失负责。您理解本平台对您的请求采取行动需要合理时间，本平台对在采取行动前已经产生的后果（包括但不限于您的任何损失）不承担任何责任。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>四、用户行为规范</h2>
+            <h3>4.1 禁止行为</h3>
+            <p>您在使用本平台服务时，必须遵守中华人民共和国相关法律法规的规定，您同意将不会利用本平台服务进行任何违法或不正当的活动，包括但不限于下列行为∶</p>
+            <ul>
+                <li>上传、展示、张贴、传播或以其它方式传送含有下列内容之一的信息：
+                    <ul>
+                        <li>反对宪法所确定的基本原则的；</li>
+                        <li>危害国家安全，泄露国家秘密，颠覆国家政权，破坏国家统一的；</li>
+                        <li>损害国家荣誉和利益的；</li>
+                        <li>煽动民族仇恨、民族歧视、破坏民族团结的；</li>
+                        <li>破坏国家宗教政策，宣扬邪教和封建迷信的；</li>
+                        <li>散布谣言，扰乱社会秩序，破坏社会稳定的；</li>
+                        <li>散布淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；</li>
+                        <li>侮辱或者诽谤他人，侵害他人合法权利的；</li>
+                        <li>含有虚假、有害、胁迫、侵害他人隐私、骚扰、侵害、中伤、粗俗、猥亵、或其它道德上令人反感的内容；</li>
+                        <li>含有中国法律、法规、规章、条例以及任何具有法律效力之规范所限制或禁止的其它内容的。</li>
+                    </ul>
+                </li>
+                <li>侵犯他人知识产权或其他合法权益的；</li>
+                <li>进行任何可能对互联网或移动网络正常运转造成不利影响的行为；</li>
+                <li>进行任何不利于本平台的行为。</li>
+            </ul>
+
+            <h3>4.2 内容规范</h3>
+            <p>您上传、发布或分享的内容（包括但不限于文字、图片、音频、视频等）应当符合法律法规、社会公德和本平台的相关规定。您保证对您上传、发布或分享的内容享有合法权利，不侵犯任何第三方的合法权益。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>五、知识产权</h2>
+            <p>本平台所包含的全部智力成果包括但不限于数据库、网站设计、文字和图表、软件、照片、录像、音乐、声音及其前述组合，软件编译、相关源代码和软件（包括小应用程序和脚本）的知识产权权利均归本平台所有。</p>
+            <p>您不得为商业目的复制、更改、拷贝、发送或使用前述任何材料或内容。</p>
+            <p>您上传、发布或分享的内容，您同意授予本平台非独占、全球、免版税、可转让、可再许可的权利，以使用、复制、修改、改编、翻译、传播、发表、创作衍生作品、展示、表演、出版、播放该等内容。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>六、隐私保护</h2>
+            <p>保护用户隐私是本平台的一项基本政策，本平台保证不对外公开或向第三方提供您的注册资料及您在使用本平台服务时存储在本平台的非公开内容，但下列情况除外：</p>
+            <ul>
+                <li>事先获得您的明确授权；</li>
+                <li>根据有关的法律法规要求；</li>
+                <li>按照相关政府主管部门的要求；</li>
+                <li>为维护社会公众的利益；</li>
+                <li>为维护本平台的合法权益。</li>
+            </ul>
+            <p>本平台可能会与第三方合作向您提供相关的网络服务，在此情况下，如该第三方同意承担与本平台同等的保护用户隐私的责任，则本平台有权将您的注册资料等提供给该第三方。</p>
+            <p>在不透露单个用户隐私资料的前提下，本平台有权对整个用户数据库进行分析并对用户数据库进行商业上的利用。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>七、免责声明</h2>
+            <p>您明确同意使用本平台服务所存在的风险将完全由您自己承担；因您使用本平台服务而产生的一切后果也由您自己承担，本平台对您不承担任何责任。</p>
+            <p>本平台不担保网络服务一定能满足用户的要求，也不担保网络服务不会中断，对网络服务的及时性、安全性、准确性也都不作担保。</p>
+            <p>本平台不保证为向用户提供便利而设置的外部链接的准确性和完整性，同时，对于该等外部链接指向的不由本平台实际控制的任何网页上的内容，本平台不承担任何责任。</p>
+            <p>对于因不可抗力或本平台不能控制的原因造成的网络服务中断或其它缺陷，本平台不承担任何责任，但将尽力减少因此而给用户造成的损失和影响。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>八、协议终止</h2>
+            <p>您同意，本平台有权自行全权决定以任何理由不经事先通知的中止、终止向您提供部分或全部本平台服务，暂时冻结或永久冻结（注销）您的账户，且无须为此向您或任何第三方承担任何责任。</p>
+            <p>出现以下情况时，本平台有权直接以注销账户的方式终止本协议：</p>
+            <ul>
+                <li>本平台终止向您提供服务后，您涉嫌再次直接或间接或以他人名义注册使用本平台服务的；</li>
+               li>您提供的电子邮箱不存在或无法接收电子邮件，且没有其他方式可以与您进行联系，或本平台以其它联系方式通知您更改电子邮件信息，而您在本平台通知后三个工作日内仍未更改为有效的电子邮箱的；</li>
+                <li>您注册信息中的主要内容不真实或不准确或不及时或不完整；</li>
+                <li>本协议（含规则）变更时，您明示并通知本平台不愿接受新的服务协议的；</li>
+                <li>其它本平台认为应当终止服务的情况。</li>
+            </ul>
+            <p>您有权向本平台要求注销您的账户，经本平台审核同意的，本平台注销（永久冻结）您的账户，届时，您与本平台基于本协议的合同关系即终止。您的账户被注销（永久冻结）后，本平台没有义务为您保留或向您披露您账户中的任何信息，也没有义务向您或第三方转发任何您未曾阅读或发送过的信息。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>九、法律适用与管辖</h2>
+            <p>本协议的订立、执行和解释及争议的解决均应适用在中华人民共和国大陆地区适用之有效法律（但不包括其冲突法规则）。</p>
+            <p>如发生本协议与适用之法律相抵触时，则这些条款将完全按法律规定重新解释，而其它有效条款继续有效。</p>
+            <p>如缔约方就本协议内容或其执行发生任何争议，双方应尽力友好协商解决；协商不成时，任何一方均可向有管辖权的中华人民共和国大陆地区法院提起诉讼。</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>十、其他</h2>
+            <p>本协议构成双方对本协议之约定事项及其他有关事宜的完整协议，除本协议规定的之外，未赋予本协议各方其他权利。</p>
+            <p>如本协议中的任何条款无论因何种原因完全或部分无效或不具有执行力，本协议的其余条款仍应有效并且有约束力。</p>
+            <p>本协议中的标题仅为方便而设，在解释本协议时应被忽略。</p>
+        </div>
+
+        <div class="last-updated">
+            <i class="fas fa-calendar-alt"></i> 最后更新日期：2024年1月1日
+        </div>
+
+        <div class="terms-actions">
+            <p>如果您对本用户协议有任何疑问，请通过以下方式联系我们：</p>
+            <a href="/comics" class="btn btn-primary">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+            <a href="javascript:void(0);" onclick="JumpToGithub()" class="btn btn-secondary">
+                <i class="fab fa-github"></i> 联系我们
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p>&copy; Thousand Lines - 千际线. Powered by TLVL</p>
+        <a href="javascript:void(0);" onclick="JumpToGithub()">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+    </div>
+</footer>
+
+<script>
+    function JumpToGithub(){
+        window.location.href = 'https://github.com/your-repo-url'; // 替换为你的 GitHub 仓库 URL
+    }
+</script>
+</body>
+</html>

@@ -32,6 +32,35 @@ public class StorageService {
         return storeFile(file, "comics/" + comicFolder);
     }
 
+    public String storeAvatarImage(MultipartFile file, String username) throws IOException {
+        if (!isJpgFile(file)) {
+            throw new IllegalArgumentException("头像必须是 JPG 格式");
+        }
+        
+        // 生成唯一的文件名，包含用户名和时间戳
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        
+        String filename = username + "_avatar_" + System.currentTimeMillis() + extension;
+        return storeFileWithCustomName(file, "avatar", filename);
+    }
+
+    private String storeFileWithCustomName(MultipartFile file, String subDir, String customFilename) throws IOException {
+        Path uploadPath = Paths.get(uploadDir, subDir);
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        Path filePath = uploadPath.resolve(customFilename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return subDir + "/" + customFilename;
+    }
+
     private boolean isJpgFile(MultipartFile file) {
         return file.getContentType().equals("image/jpeg");
     }

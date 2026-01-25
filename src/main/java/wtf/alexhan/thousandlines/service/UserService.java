@@ -2,8 +2,10 @@ package wtf.alexhan.thousandlines.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wtf.alexhan.thousandlines.dto.RegRequest;
 import wtf.alexhan.thousandlines.model.*;
 import wtf.alexhan.thousandlines.repository.*;
@@ -102,5 +104,19 @@ public class UserService {
         } else {
             throw new RuntimeException("邀请码不存在");
         }
+    }
+
+    @Transactional
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }
